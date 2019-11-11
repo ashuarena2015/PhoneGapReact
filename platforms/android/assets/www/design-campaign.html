@@ -1,0 +1,568 @@
+<html>
+
+	<head>
+	  	<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Design Campaign</title>
+		<link rel="stylesheet" href="styles.css"/>
+
+		<!-- JQuery UI -->
+		<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> -->
+	  	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  		<script src="jquery-ui-touch.js"></script>
+
+  		<script src="https://use.fontawesome.com/fb4359de81.js"></script>
+
+  		<script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/inline/ckeditor.js"></script>
+
+		<script>
+		$( function() {
+		    //$( "sortable" ).sortable();
+	        $( "#sortable" ).sortable({
+	          revert: true,
+		      handle: ".shortable-handle",
+		      cancel: "#sortable p"
+		    });
+
+		});
+
+
+		$(document).ready(function(){
+
+			var getUsersImages = 'userId='+localStorage.getItem('userId');
+
+			function getImages(){
+				$.ajax({
+					//url: 'http://localhost/campaign-php/get-user-images.php?userId='+localStorage.getItem('userId'),
+			        url: 'http://ideaweaver.in/campaign-php-ws/get-user-images.php?userId='+localStorage.getItem('userId'),
+			        type: 'get',
+			        dataType: 'jsonp',
+			        success: function(response){
+			        	$("#user-images").html('');
+			            var len = response.length;
+			            for(var i=0; i<len; i++){
+			                var id = response[i].id;
+			                var image = response[i].image;
+
+			                var tr_str = "<li class='selected-img'><img src='http://ideaweaver.in/campaign-php-ws/design-camp-images/" + image + "' width='80'/></li>" ;
+			                //var tr_str = "<li class='selected-img'><img src='http://localhost/campaign-php/design-camp-images/" + image + "' width='80'/></li>" ;
+			                $("#user-images").append(tr_str);
+			            }
+
+			        }
+			    });
+			}
+
+
+			$(window).load(function(){
+				getImages();
+			});
+
+			$("#uploadimage").on('submit',(function(e) {
+				$('.loading').show();
+				e.preventDefault();
+				$.ajax({
+					//url: "http://localhost/campaign-php/design-camp-img-upload.php?user_id="+localStorage.getItem('userId'), // 
+					url: "http://ideaweaver.in/campaign-php-ws/design-camp-img-upload.php?user_id="+localStorage.getItem('userId'),
+					type: 'POST',
+					data: new FormData(this),
+					dataType: 'json',
+					processData: false,
+    				contentType: false,
+					success: function(response){						
+						alert('Image has been uploaded successfully.');
+						$('.loading').hide();
+						getImages();
+					},
+					error: function(requestObject, error, errorThrown) {
+						$('.loading').hide();
+						alert('Something went wrong.');
+						getImages();
+			        }
+				});
+
+			}));
+
+
+			$('.img-selection').click(function(){
+
+				$('.img-option').show();
+				$('.basic-options').hide();
+
+				//$('#image-gallery').show();
+				$('.img-selection').removeClass('active');
+				$(this).addClass('active');
+			});
+
+
+			$('.close-gallery').click(function(){
+				$('#image-gallery').hide();
+				$('.img-selection').removeClass('active');
+
+				$('.img-option').hide();
+				$('.basic-options').show();
+			});
+
+			$('.open-gallery-btn').click(function(){
+				$('#image-gallery').show();
+			});
+
+			$('#image-gallery').on("click",".selected-img",function(){
+				var getImagePath = $('img',this).attr('src');
+				$('.img-selection.active').attr('src',getImagePath);
+				$('#image-gallery').hide();
+				$('.img-option').hide();
+				$('.basic-options').show();
+			});
+
+			$('.img-option .close-img-option').click(function(){
+				$('.img-option').hide();
+				$('.basic-options').show();
+			})
+
+			$('.img-option .add-image').click(function(){
+				$('#image-gallery').show();
+			})
+
+			$('.save-design-btn').click(function(){
+
+				console.log('save btn');
+
+				var logoImg = $('#temp-1-logo img.camp-logo').attr('src');
+				var menuLink1Text = $('#temp-2-menu-link .main-menu a:eq(0)').text();
+				var menuLink1Href = $('#temp-2-menu-link .main-menu a:eq(0)').attr('href');
+				var menuLink2Text = $('#temp-2-menu-link .main-menu a:eq(1)').text();
+				var menuLink2Href = $('#temp-2-menu-link .main-menu a:eq(1)').attr('href');
+				var menuLink3Text = $('#temp-2-menu-link .main-menu a:eq(2)').text();
+				var menuLink3Href = $('#temp-2-menu-link .main-menu a:eq(2)').attr('href');
+				var oneBlockImg = $('#temp-3-one-block img.one-block-img').attr('src');
+				var oneBlockContent = $('#temp-3-one-block .one-block-content').html();
+				var twoBlockLeftImg = $('#temp-4-two-block img.left-block-img').attr('src');
+				var twoBlockContentLeft = $('#temp-4-two-block .two-block-content-left').html();
+				var twoBlockRightImg = $('#temp-4-two-block img.right-block-img').attr('src');
+				var twoBlockContentRight = $('#temp-4-two-block .two-block-content-right').html();
+				var footerLink1Text = $('#temp-5-footer-link .footer-links a:eq(0)').text();
+				var footerLink1Href = $('#temp-5-footer-link .footer-links a:eq(0)').attr('href');
+				var footerLink2Text = $('#temp-5-footer-link .footer-links a:eq(1)').text();
+				var footerLink2Href = $('#temp-5-footer-link .footer-links a:eq(1)').attr('href');
+				var footerLink3Text = $('#temp-5-footer-link .footer-links a:eq(2)').text();
+				var footerLink3Href = $('#temp-5-footer-link .footer-links a:eq(2)').attr('href');
+
+				var campDataJson = '{"logo_img":'+'"'+logoImg+'"'+',"menuLink1Text":'+'"'+menuLink1Text+'","menuLink1href":'+'"'+menuLink1Href+'","menuLink2Text":'+'"'+menuLink2Text+'","menuLink2href":'+'"'+menuLink2Href+'","menuLink3Text":'+'"'+menuLink3Text+'","menuLink3href":'+'"'+menuLink3Href+'","one_block_img":'+'"'+oneBlockImg+'","one_block_content":'+'"'+oneBlockContent+'","two_block_left_img":'+'"'+twoBlockLeftImg+'","two_block_content_left":'+'"'+twoBlockContentLeft+'","two_block_content_right":'+'"'+twoBlockContentRight+'","two_block_right_img":'+'"'+twoBlockRightImg+'","footerLink1Text":'+'"'+footerLink1Text+'","footerLink1href":'+'"'+footerLink1Href+'","footerLink2Text":'+'"'+footerLink2Text+'","footerLink2href":'+'"'+footerLink2Href+'","footerLink3Text":'+'"'+footerLink3Text+'","footerLink3href":'+'"'+footerLink3Href+'"}';
+
+				var campPage = $('.camp-design-section').html();
+
+				//console.log(campPage);
+				// console.log(campDataJson);
+
+				$('#campaignData').val(campDataJson);
+				$('#campaignPage').val(campPage);
+				$('form#saveDesignCamp').submit();
+
+			});
+
+			$("form#saveDesignCamp").submit(function(e) {
+				var formData = {
+					'data' : $('textarea#campaignPage').val(),
+				}
+
+				$('.loading').show();
+
+				e.preventDefault();
+
+			        var url = 'http://ideaweaver.in/campaign-php-ws/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId');
+			        //var url = 'http://localhost/campaign-php/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId');
+			        
+			        $.ajax({
+			          type: 'POST',    
+				          url: url,
+				          data:formData,
+				          dataType: "json",
+				          crossDomain: true,          
+				          cache:false, 
+				          success: function( response ) {
+				          	$('.loading').hide();
+				          	if(response[0]['campaignSave'] == 1) {
+				        		window.location = 'file:///android_asset/www/index.html';
+				        		localStorage.setItem('designCamp','active');
+				        		localStorage.setItem('designCampId',response[0]['campaignID']);
+				        		localStorage.setItem('designCampType',2);
+				        		//window.history.go(-2);
+				        	}
+				          },
+				          error:function(jqXHR, textStatus, errorThrown){
+				            alert(errorThrown);
+				            $('.loading').hide();
+				          }
+			        });
+
+				
+			})
+
+
+			function createPreviewPage(){
+				$.ajax({
+					url: 'http://ideaweaver.in/campaign-php-ws/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId'), 
+					//url: 'http://localhost/campaign-php/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId'), 
+					type:'GET',
+					jsonp: "callback",
+					data: formData,
+					dataType: "jsonp",
+				    success: function( response ) {
+				    	console.log( response );
+				        // if(response[0]['campaignSave'] == 1) {
+				        // 	window.location = './resend-campaign/'+response[0]['campaignID']+'/1';
+				        // 	localStorage.setItem('designCamp','active');
+				        // }
+				    }
+				})
+			}
+
+			// <a href="javascript:void(0);" class="shortable-handle"><img src="design-camp-img/drag-icon.png"/></a>
+
+			$('.ui-state-default').hover(function(){
+
+				var appendBefore = $(this).find('table.parent');
+				$('<a href="javascript:void(0);" class="shortable-handle"><img src="design-camp-img/drag-icon.png"/></a>').insertBefore(appendBefore);
+			},function(){
+				$('.shortable-handle').remove();
+			})
+
+
+			$('.quit-btn').click(function(){
+				if (confirm('Are you sure to quit?')) {
+					localStorage.setItem('designCamp','quit');
+		            window.location = 'file:///android_asset/www/index.html';
+		        }else {
+		        	
+		        }
+			})
+
+		});
+		</script>
+
+		<style>
+			#image-gallery {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100%;
+				width: 100%;
+				background: #f8f8f8;
+				z-index: 9;
+				color: #333;
+				display: none;
+			}
+
+			#user-images {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			#user-images li {
+				display: inline-block;
+				border: 1px solid #e2e2e2;
+				padding: 5px;
+				width: 130px;
+				height: 130px;
+				float: left;
+				position: relative;
+				margin: 5px;
+			}
+			#user-images li img {
+				max-width: 130px;
+				margin: auto;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+				max-height: 130px;
+			}
+			.basic-options {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				z-index: 9;
+				width: 100%;
+			}
+			.open-gallery-btn {
+				background: #75b654;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+			.save-design-btn {
+				background: #3499db;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+			.quit-btn {
+				background: #f14040;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+
+			.img-selection.active {
+				border: 2px solid red;
+			}
+
+			.img-option {
+				position: fixed;
+				bottom: 0;
+				z-index: 9;
+				width: 100%;
+				left: 0;
+				display: none;
+			}
+			.img-option .add-image {
+				float: left;
+				padding: 10px;
+				color: #fff;
+				background: #75b654;
+				width: calc(40% - 20px);
+				text-align: center;
+				text-decoration: none;
+			}
+			.img-option .delete-image {
+				float: left;
+				padding: 10px;
+				color: #fff;
+				background: #f14040;
+				width: calc(40% - 20px);
+				text-align: center;
+				text-decoration: none;
+			}
+			.img-option .close-img-option {
+				float: left;
+				padding: 20px 10px;
+				color: #000;
+				background: #fff;
+				width: calc(20% - 20px);
+				text-align: center;
+				text-decoration: none;
+				position: relative;
+			}
+			.img-option .close-img-option::before {
+			    position: absolute;
+			    content: "\f00d";
+			    font-family: 'fontawesome';
+			    top: 10px;
+			    font-size: 21px;
+			    left: 25px;
+			    color: #666;
+			}
+
+			table td {
+				position: relative;
+			}
+
+			.ui-state-default {
+				position: relative;
+			}
+			.shortable-handle {
+			    position: absolute;
+			    height: 30px;
+			    width: 40px;
+			    right: 0px;
+			    top: calc(50% - 30px);
+			    border: 1px solid #000;
+			    text-align: center;
+			    padding-top: 10px;
+			    z-index: 9;
+			    background: yellow;
+			}
+
+			.loading {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				left:0;
+				top:0;
+				z-index: 999;
+				background: rgba(0,0,0,0.6);
+				color: #fff;
+				display: none;
+			}
+			.loading-icon {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+			}
+
+		</style>
+
+
+	</head>
+
+	<body>
+		
+		<!-- Loading -->
+		<div class="loading">
+			<span class="fa fa-spin fa-spinner loading-icon fa-2x"></span>
+		</div>
+
+		<!-- Image Gallery -->
+		<div id="image-gallery">
+			<span class="fa fa-stack fa-arrow-left text-right close-gallery"> Back</span>
+			<div class="content-container" style="padding: 8px;">
+				<form id="uploadimage" action="" method="post" enctype="multipart/form-data">
+					<input type="file" name="file" id="file" required />
+					<input type="submit" value="Upload" class="submit" />
+				</form>
+				<!-- Uploaded Images here -->
+				<div style="height: 70%; margin-top: 10px; display: block; overflow: auto;">
+					<ul id="user-images"></ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="basic-options">
+			<a href="javascript:void(0)" class="open-gallery-btn">Add new images</a>
+			<a href="javascript:void(0)" class="save-design-btn">Save & Quit</a>
+			<a href="javascript:void(0)" class="quit-btn">Quit & Exit</a>
+		</div>
+		<div class="img-option">
+			<a href="javascript:void(0)" class="add-image"> Upload</a>
+			<a href="javascript:void(0)" class="delete-image"> Delete</a>
+			<a href="javascript:void(0)" class="close-img-option"></a>
+		</div>
+
+		<form id="saveDesignCamp" action="" method="post" enctype="multipart/form-data">
+			<textarea id="campaignData" style="display: none;" name="campaignData"></textarea>
+			<textarea id="campaignPage" style="display: none;" name="campaignPage"></textarea>
+		</form>
+		<div id="sortable" class="camp-design-section" style="background: #fff; padding: 10px; color: #333; margin: 25px 10px 70px;">
+			  <div class="ui-state-default logo-section">
+		  		<table style="width: 100%; max-width: 590px; padding: 10px 0;" class="parent" id="temp-1-logo">
+		  			<tr>
+		  				<td style="text-align: center;">
+		  					<img src="design-camp-img/default-img.png" alt="your image" class="img-selection camp-logo" style="max-width: 100px; margin: auto;" />
+	  					</td>
+		  			</tr>
+		  		</table>
+			  </div>
+			  <div class="ui-state-default">
+			  	<table style="width: 100%; max-width: 590px; padding: 10px 0;" class="parent" id="temp-2-menu-link">
+		  			<tr>
+		  				<td class="main-menu" style="text-align: center; font-family:Arial,Helvetica,sans-serif;">
+						  	<a class="menu-link-1" href="www.google.com" style="color: #1ea1e7; font-size: 13px; margin-right: 10px;">Home</a>
+						  	<a class="menu-link-2" href="#" style="color: #1ea1e7; font-size: 13px; margin-right: 10px;">About Me</a>
+						  	<a class="menu-link-3" href="#" style="color: #1ea1e7; font-size: 13px;">Contacts</a>
+	  					</td>
+						</tr>
+				</table>
+			  </div>
+			  <div class="ui-state-default one-image-text-block">
+		  		<table style="width: 100%; max-width: 590px; padding: 10px 0;" class="parent" id="temp-3-one-block">
+		  			<tr>
+		  				<td style="color: #333; padding: 10px 0;  font-family:Arial,Helvetica,sans-serif;">Title</td>
+		  			</tr>
+		  			<tr>
+		  				<td style="text-align: center;">
+	  						<img src="design-camp-img/default-img.png" alt="your image" class="img-selection one-block-img" style="max-width: 100%; margin: auto;" />
+						</td>
+					</tr>
+					<tr>
+						<td class="one-block-content" style="color: #333; font-size: 14px; font-family:Arial,Helvetica,sans-serif;"><span>Sed tincidunt, nisl a facilisis sodales, odio turpis eleifend lorem, quis condimentum sapien magna sit amet ante.</span>
+		  				</td>
+		  			</tr>
+		  		</table>
+			  </div>
+			  <div class="ui-state-default two-image-block">
+				<table style="width: 100%; max-width: 590px; padding: 10px 0;" class="parent" id="temp-4-two-block">
+					<tr>
+						<td width="50%">
+							<table>
+								<tr>
+									<td style="color: #333; padding: 10px 0; font-family:Arial,Helvetica,sans-serif;">Title</td>
+								</tr>
+								<tr>
+									<td style="height: 100px; vertical-align: middle;"><img src="design-camp-img/default-img.png" alt="your image" class="img-selection left-block-img" style="max-width: 100%; max-height: 100px; margin: auto;" /></td>
+								</tr>
+								<tr>
+									<td class="two-block-content-left" style="color: #333; font-size: 14px; font-family:Arial,Helvetica,sans-serif;">Sed tincidunt, nisl a facilisis sodales, odio turpis eleifend lorem, quis condimentum sapien magna sit amet ante.</td>
+								</tr>
+							</table>
+						</td>
+						<td width="50%">
+							<table>
+								<tr>
+									<td style="color: #333; padding: 10px 0; font-family:Arial,Helvetica,sans-serif;">Title</td>
+								</tr>
+								<tr>
+									<td style="height: 100px; vertical-align: middle;"><img src="design-camp-img/default-img.png" alt="your image" class="img-selection right-block-img" style="max-width: 100%; max-height: 100px; margin: auto;" /></td>
+								</tr>
+								<tr>
+									<td class="two-block-content-right" style="color: #333; font-size: 14px; font-family:Arial,Helvetica,sans-serif;">Sed tincidunt, nisl a facilisis sodales, odio turpis eleifend lorem, quis condimentum sapien magna sit amet ante.</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			  </div>
+			  <div class="ui-state-default footer-menu">
+		  		<table style="width: 100%; max-width: 590px; padding: 10px 0 30px;" class="parent" id="temp-5-footer-link">
+		  			<tr>
+		  				<td class="footer-links" style="text-align: center; font-family:Arial,Helvetica,sans-serif;">
+		  					<a class="footer-link-1" href="#" style="color: #1ea1e7; font-size: 13px; margin-right: 10px;">Home</a>
+					  		<a class="footer-link-2" href="#" style="color: #1ea1e7; font-size: 13px; margin-right: 10px;">About Me</a>
+					  		<a class="footer-link-3" href="#" style="color: #1ea1e7; font-size: 13px;">Contacts</a>
+	  					</td>
+						</tr>
+				</table>
+			</div>
+		  </div>
+
+		<script>
+	        InlineEditor
+	            .create( document.querySelector( '.main-menu' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.one-block-content' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.two-block-content-left' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.two-block-content-right' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.footer-links' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+	    </script>
+
+	</body>
+
+
+
+
+	
+
+</html>

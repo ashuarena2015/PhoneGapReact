@@ -1,0 +1,457 @@
+<html>
+
+	<head>
+	  	<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Design Campaign</title>
+		<link rel="stylesheet" href="styles.css"/>
+
+		<!-- JQuery UI -->
+		<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> -->
+	  	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  		<script src="jquery-ui-touch.js"></script>
+
+  		<script src="https://use.fontawesome.com/fb4359de81.js"></script>
+
+  		<script src="https://cdn.ckeditor.com/ckeditor5/10.0.1/inline/ckeditor.js"></script>
+
+		<script>
+		$( function() {
+		    //$( "sortable" ).sortable();
+	        $( "#sortable" ).sortable({
+	          revert: true,
+	          connectWith: '#sortable.ui-sortable',
+		      handle: ".shortable-handle",
+		      cancel: "#sortable p"
+		    });
+
+		});
+
+
+		$(document).ready(function(){
+
+			var getUsersImages = 'userId='+localStorage.getItem('userId');
+
+			function getImages(){
+				$.ajax({
+					//url: 'http://localhost/campaign-php/get-user-images.php?userId='+localStorage.getItem('userId'),
+			        url: 'http://ideaweaver.in/campaign-php-ws/get-user-images.php?userId='+localStorage.getItem('userId'),
+			        type: 'get',
+			        dataType: 'jsonp',
+			        success: function(response){
+			        	$("#user-images").html('');
+			            var len = response.length;
+			            for(var i=0; i<len; i++){
+			                var id = response[i].id;
+			                var image = response[i].image;
+
+			                var tr_str = "<li class='selected-img'><img src='http://ideaweaver.in/campaign-php-ws/design-camp-images/" + image + "' width='80'/></li>" ;
+			                //var tr_str = "<li class='selected-img'><img src='http://localhost/campaign-php/design-camp-images/" + image + "' width='80'/></li>" ;
+
+			                $("#user-images").append(tr_str);
+			            }
+
+			        }
+			    });
+			}
+
+
+			$(window).load(function(){
+				
+				getImages();
+			});
+
+			$("#uploadimage").on('submit',(function(e) {
+				e.preventDefault();
+				$('.loading').show();
+				$.ajax({
+					//url: "http://localhost/campaign-php/design-camp-img-upload.php?user_id="+localStorage.getItem('userId'), // 
+					url: "http://ideaweaver.in/campaign-php-ws/design-camp-img-upload.php?user_id="+localStorage.getItem('userId'),
+					type: 'POST',
+					data: new FormData(this),
+					dataType: 'json',
+					processData: false,
+    				contentType: false,
+					success: function(response){						
+						alert('Image has been uploaded successfully.');
+						getImages();
+						$('.loading').hide();
+					},
+					error: function(requestObject, error, errorThrown) {
+						alert('Something went wrong.');
+						$('.loading').hide();
+			        }
+				});
+
+			}));
+
+
+			$(document).on('click','.img-selection',function(){
+
+				$('.img-option').show();
+				$('.basic-options').hide();
+
+				//$('#image-gallery').show();
+				$('.img-selection').removeClass('active');
+				$(this).addClass('active');
+			});
+
+
+			$('.close-gallery').click(function(){
+				$('#image-gallery').hide();
+				$('.img-selection').removeClass('active');
+
+				$('.img-option').hide();
+				$('.basic-options').show();
+			});
+
+			$('.open-gallery-btn').click(function(){
+				$('#image-gallery').show();
+			});
+
+			$('#image-gallery').on("click",".selected-img",function(){
+				var getImagePath = $('img',this).attr('src');
+				$('.img-selection.active').attr('src',getImagePath);
+				$('#image-gallery').hide();
+				$('.img-option').hide();
+				$('.basic-options').show();
+			});
+
+			$('.img-option .close-img-option').click(function(){
+				$('.img-option').hide();
+				$('.basic-options').show();
+			})
+
+			$('.img-option .add-image').click(function(){
+				$('#image-gallery').show();
+			})
+
+
+			// To display editable content
+
+			var getURL = window.location.href;
+			var getCampaignId = getURL.split('#');
+			console.log(getCampaignId[1]);
+
+			$.ajax({
+					//url: 'http://localhost/react-campaign-designer/react-campaign-php/edit-design-camp.php?campaignID='+getCampaignId[1], 
+					url: 'http://ideaweaver.in/campaign-php-ws/edit-design-camp.php?campaignID='+getCampaignId[1], 
+					jsonp: "callback",
+					dataType: "jsonp",
+				    success: function( response ) {
+				    	console.log(response);
+				    	$('.camp-design-section').append(response);
+				    	
+				    }
+			});
+
+			$('.save-design-btn').click(function(){
+
+				var campPage = $('.camp-design-section').html();
+
+				console.log(campPage);
+				$('#campaignPage').val(campPage);
+				$('form#saveDesignCamp').submit();
+
+			});
+
+			$("form#saveDesignCamp").submit(function(e) {
+				var formData = {
+					'data' : $('textarea#campaignPage').val(),
+				}
+				e.preventDefault();
+				$('.loading').show();
+				var url = 'http://ideaweaver.in/campaign-php-ws/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId');
+		        //var url = 'http://localhost/campaign-php/save-design-camp.php?campaignName='+localStorage.getItem('designCampName')+'&userId='+localStorage.getItem('userId');
+
+				$.ajax({
+			          type: 'POST',    
+				          url: url,
+				          data:formData,
+				          dataType: "json",
+				          crossDomain: true,          
+				          cache:false, 
+				          success: function( response ) {
+				          	$('.loading').hide();
+				          	if(response[0]['campaignSave'] == 1) {
+				        		window.location = 'file:///android_asset/www/index.html';
+				        		localStorage.setItem('designCamp','active');
+				        		localStorage.setItem('designCampId',response[0]['campaignID']);
+				        		localStorage.setItem('designCampType',2);
+				        		//window.history.go(-2);
+				        	}
+				          },
+				          error:function(jqXHR, textStatus, errorThrown){
+				            alert(errorThrown);
+				            $('.loading').hide();
+				          }
+			        });
+				
+			})
+
+			// <a href="javascript:void(0);" class="shortable-handle"><img src="design-camp-img/drag-icon.png"/></a>
+
+			$(document).on("mouseenter", ".ui-state-default", function() {
+			    var appendBefore = $(this).find('table.parent');
+				$('<a href="javascript:void(0);" class="shortable-handle"><img src="design-camp-img/drag-icon.png"/></a>').insertBefore(appendBefore);
+			});
+
+			$(document).on("mouseleave", ".ui-state-default", function() {
+			    $('.shortable-handle').remove();
+			});
+
+			$('.quit-btn').click(function(){
+				if (confirm('Are you sure to quit?')) {
+					localStorage.setItem('designCamp','quit');
+		            window.location = 'file:///android_asset/www/index.html';
+		        }else {
+		        	
+		        }
+			})
+
+		});
+		</script>
+
+		<style>
+			#image-gallery {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100%;
+				width: 100%;
+				background: #f8f8f8;
+				z-index: 9;
+				color: #333;
+				display: none;
+			}
+
+			#user-images {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			#user-images li {
+				display: inline-block;
+				border: 1px solid #e2e2e2;
+				padding: 5px;
+				width: 130px;
+				height: 130px;
+				float: left;
+				position: relative;
+				margin: 5px;
+			}
+			#user-images li img {
+				max-width: 130px;
+				margin: auto;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+				max-height: 130px;
+			}
+			.basic-options {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				z-index: 9;
+				width: 100%;
+			}
+			.open-gallery-btn {
+				background: #75b654;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+			.save-design-btn {
+				background: #3499db;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+			.quit-btn {
+				background: #f14040;
+				float: left;
+				color: #fff;
+				text-decoration: none;
+				padding: 10px;
+				width: calc(100% / 3 - 20px);
+				text-align: center;
+				height: 40px;
+			}
+
+			.img-selection.active {
+				border: 2px solid red;
+			}
+
+			.img-option {
+				position: fixed;
+				bottom: 0;
+				z-index: 9;
+				width: 100%;
+				left: 0;
+				display: none;
+			}
+			.img-option .add-image {
+				float: left;
+				padding: 10px;
+				color: #fff;
+				background: #75b654;
+				width: calc(40% - 20px);
+				text-align: center;
+				text-decoration: none;
+			}
+			.img-option .delete-image {
+				float: left;
+				padding: 10px;
+				color: #fff;
+				background: #f14040;
+				width: calc(40% - 20px);
+				text-align: center;
+				text-decoration: none;
+			}
+			.img-option .close-img-option {
+				float: left;
+				padding: 20px 10px;
+				color: #000;
+				background: #fff;
+				width: calc(20% - 20px);
+				text-align: center;
+				text-decoration: none;
+				position: relative;
+			}
+			.img-option .close-img-option::before {
+			    position: absolute;
+			    content: "\f00d";
+			    font-family: 'fontawesome';
+			    top: 10px;
+			    font-size: 21px;
+			    left: 25px;
+			    color: #666;
+			}
+
+			table td {
+				position: relative;
+			}
+
+			.ui-state-default {
+				position: relative;
+			}
+			.shortable-handle {
+			    position: absolute;
+			    height: 30px;
+			    width: 40px;
+			    right: 0px;
+			    top: calc(50% - 30px);
+			    border: 1px solid #000;
+			    text-align: center;
+			    padding-top: 10px;
+			    z-index: 9;
+			    background: yellow;
+			}
+			.loading {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				left:0;
+				top:0;
+				z-index: 999;
+				background: rgba(0,0,0,0.6);
+				color: #fff;
+				display: none;
+			}
+			.loading-icon {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+			}
+		</style>
+
+
+	</head>
+
+	<body>
+		
+		<!-- Loading -->
+		<div class="loading">
+			<span class="fa fa-spin fa-spinner loading-icon fa-2x"></span>
+		</div>
+
+		<!-- Image Gallery -->
+
+		<div id="image-gallery">
+			<span class="fa fa-stack fa-arrow-left text-right close-gallery"> Back</span>
+			<div class="content-container" style="padding: 8px;">
+				<form id="uploadimage" action="" method="post" enctype="multipart/form-data">
+					<input type="file" name="file" id="file" required />
+					<input type="submit" value="Upload" class="submit" />
+				</form>
+				<!-- Uploaded Images here -->
+				<div style="height: 70%; margin-top: 10px; display: block; overflow: auto;">
+					<ul id="user-images"></ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="basic-options">
+			<a href="javascript:void(0)" class="open-gallery-btn">Add new images</a>
+			<a href="javascript:void(0)" class="save-design-btn">Save & Quit</a>
+			<a href="javascript:void(0)" class="quit-btn">Quit & Exit</a>
+		</div>
+		<div class="img-option">
+			<a href="javascript:void(0)" class="add-image"> Upload</a>
+			<a href="javascript:void(0)" class="delete-image"> Delete</a>
+			<a href="javascript:void(0)" class="close-img-option"></a>
+		</div>
+
+		<form id="saveDesignCamp" action="" method="post" enctype="multipart/form-data">
+			<textarea id="campaignData" style="display: none;" name="campaignData"></textarea>
+			<textarea id="campaignPage" style="display: none;" name="campaignPage"></textarea>
+		</form>
+		<div id="sortable" class="camp-design-section" style="background: #fff; padding: 10px; color: #333; margin: 25px 10px 70px;">
+		  
+		</div>
+
+		<script>
+	        InlineEditor
+	            .create( document.querySelector( '.main-menu' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.one-block-content' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.two-block-content-left' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.two-block-content-right' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+            InlineEditor
+	            .create( document.querySelector( '.footer-links' ))
+	            .catch( error => {
+	                console.error( error );
+	            } );
+	    </script>
+
+	</body>
+
+	
+
+</html>
