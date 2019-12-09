@@ -23,14 +23,10 @@ class MyCampaigns extends Component {
 		this.deleteCamp = this.deleteCamp.bind(this);
 		this.previewCamp = this.previewCamp.bind(this);
 		this.closePreviewModal = this.closePreviewModal.bind(this);
-
-		console.log(this.props);
-		console.log('Campaign type='+this.props.match.params.campType);
 	}
 
 	componentDidMount(){
-		fetch('http://ideaweaver.in/campaign-php-ws/get-my-campaigns.php', {
-		//fetch('http://localhost/campaign-php/get-my-campaigns.php', {
+		fetch(`${WS_URL}get-my-campaigns.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -58,9 +54,7 @@ class MyCampaigns extends Component {
 	}
 
 	deleteCamp(id){
-		console.log(id);
-		// fetch('http://localhost/campaign-php/delete-campaign.php', {
-		fetch('http://ideaweaver.in/campaign-php-ws/delete-campaign.php', {
+		fetch(`${WS_URL}delete-campaign.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -90,7 +84,6 @@ class MyCampaigns extends Component {
 	}
 
 	previewCamp(id){
-		console.log(id);
 		this.setState({
 			showPreviewModal: true,
 			iframeSRC: id
@@ -175,7 +168,7 @@ class MyCampaigns extends Component {
 	    				<div className="modal-header">
 			    			<button className="close-modal" onClick={this.closePreviewModal}></button>
 			    		</div>
-			  			<iframe className="preview-iframeBox" src={'http://ideaweaver.in/campaign-php-ws/user-design-campaigns/' + this.state.iframeSRC + '-designCamp.html'}></iframe>
+			  			<iframe className="preview-iframeBox" src={`${WS_URL}user-design-campaigns/` + this.state.iframeSRC + '-designCamp.html'}></iframe>
 					</div>
 				</ModalBox>
 

@@ -1,6 +1,8 @@
 const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
+const dotenv = require('dotenv');
+const fs = require('fs'); // to check if the file exists
 
 const ENV = require('./env');
 const PATHS = {
@@ -11,7 +13,7 @@ const PATHS = {
 process.env.BABEL_ENV = ENV;
 
 const common = {
-  entry: PATHS.src,
+  entry: PATHS.src, 
   output: {
     path: PATHS.build,
     filename: 'bundle.js',
@@ -33,6 +35,27 @@ const common = {
 };
 
 if (ENV === 'development') {
+  // Get the root path (assuming your webpack config is in the root of your project!)
+  const currentPath = path.join(__dirname);
+  
+  // Create the fallback path (the production .env)
+  const basePath = currentPath + '/.env';
+  // We're concatenating the environment name to our filename to specify the correct env file!
+  const envPath = basePath + '.' + ENV;
+  console.log(currentPath, envPath);
+  // Check if the file exists, otherwise fall back to the production .env
+  const finalPath = fs.existsSync(envPath) ? envPath : basePath;
+
+  // Set the path parameter in the dotenv config
+  const fileEnv = dotenv.config({ path: finalPath }).parsed;
+  
+  // reduce it to a nice object, the same as before (but with the variables from the file)
+  const envKeys = Object.keys(fileEnv).reduce((prev, next) => {
+    console.log(next, prev);
+    prev[next] = JSON.stringify(fileEnv[next]);
+    prev[`process.env.${next}`] = JSON.stringify(fileEnv[next]);
+    return prev;
+  }, {});
   module.exports = merge(common, {
     devServer: {
       contentBase: PATHS.build,
@@ -54,6 +77,7 @@ if (ENV === 'development') {
     },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
+      new webpack.DefinePlugin(envKeys),
     ],
   });
 } else {

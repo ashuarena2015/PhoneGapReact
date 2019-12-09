@@ -8,11 +8,7 @@ class SideMenu extends Component {
 
 	constructor(props) {
 		super(props);
-		// this.state = {
-		// 	sideMenuOpen: false
-		// }
 		this.logout = this.logout.bind(this);
-		console.log(this.props.loggedInOut);
 	}
 
 	logout(){
@@ -27,7 +23,6 @@ class SideMenu extends Component {
 		const loginLogoutBtn = this.props.loggedInOut;
 
 		return(
-			//console.log(this.props.sideMenuOpen);
 			<div className="header">
 				<div id="sidemenu">
 					<a href="#" className={!this.props.sideMenuOpen ? "menu-opener" : "menu-opener menu-opener-active"} onClick={this.props.menuOpener}><span className={!this.props.sideMenuOpen ? "fa fa-bars fa-2x" : "fa fa-arrow-left"}></span></a>
@@ -36,6 +31,7 @@ class SideMenu extends Component {
 				            <li><Link to='/profile'>My Profile</Link></li>
 				            <li><Link to='/create-campaign'>Create Campaign</Link></li>
 				            <li><Link to='/my-campaigns'>My Campaigns</Link></li>
+										<li><Link to='/import-contacts'>Import Contacts</Link></li>
 				            <li><Link to='/about'>About Us</Link></li>
 				            <li className="divider"></li>
 				            {loginLogoutBtn != '' && 

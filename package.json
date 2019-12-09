@@ -10,6 +10,7 @@
     "classnames": "^2.2.3",
     "cordova-android": "^6.4.0",
     "cordova-plugin-whitelist": "git+https://github.com/apache/cordova-plugin-whitelist.git",
+    "dotenv": "^8.2.0",
     "history": "^4.7.2",
     "react": "^15.3.0",
     "react-addons-css-transition-group": "^15.3.0",

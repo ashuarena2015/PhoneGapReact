@@ -57,8 +57,7 @@ class EditProfile extends Component {
 
 		var newName = this.refs.newName.value;
 
-		fetch('http://ideaweaver.in/campaign-php-ws/update-name.php', {
-		// fetch('http://localhost/campaign-php/update-name.php', {
+		fetch(`${WS_URL}update-name.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -114,8 +113,7 @@ class EditProfile extends Component {
 
 		this.setState({newNumber : this.refs.newNumber.value, otpField : true});
 
-		fetch('http://ideaweaver.in/campaign-php-ws/send-otp-mobile-verify.php', {
-		// fetch('http://localhost/campaign-php/send-otp-mobile-verify.php', {
+		fetch(`${WS_URL}send-otp-mobile-verify.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -150,8 +148,7 @@ class EditProfile extends Component {
 		var newNumber = this.refs.newNumber.value;
 		var otpMobile = this.refs.otpMobile.value;
 
-		fetch('http://ideaweaver.in/campaign-php-ws/update-mobile.php', {
-		//fetch('http://localhost/campaign-php/update-mobile.php', {
+		fetch(`${WS_URL}update-mobile.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -190,8 +187,7 @@ class EditProfile extends Component {
 	}
 
 	componentDidMount(){
-		fetch('http://ideaweaver.in/campaign-php-ws/profile.php', {
-		//fetch('http://localhost/campaign-php/profile.php', {
+		fetch(`${WS_URL}profile.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -200,7 +196,6 @@ class EditProfile extends Component {
 	      }).then(response => {
 	        return response.json();
 	      }).then(json => {
-	      		console.log('profile ='+json);
 	      		this.setState({
 	      			fullname: json[0].name,
 	      			email: json[0].email,

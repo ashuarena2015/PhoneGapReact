@@ -13,6 +13,7 @@ import EditProfile from './edit-profile';
 import CreateCampaign from './create-campaign';
 import ResendCampaign from './resend-campaign';
 import MyCampaigns from './my-campaigns';
+import ImportContacts from './import-contacts';
 import ModalBox from './modal-box';
 
 class App extends Component {
@@ -57,13 +58,12 @@ class App extends Component {
 
     this.setState({
       loading: true
-    })
+    });
 
     localStorage.removeItem('sessionUser');
     localStorage.removeItem('userId');
-    //console.log('Username:'+document.getElementById('userEmail').value+', Password:'+document.getElementById('userPass').value);
-    fetch('http://ideaweaver.in/campaign-php-ws/login.php', {
-    //fetch('http://localhost/campaign-php/login.php', {
+
+    fetch(`${WS_URL}login.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -115,9 +115,7 @@ class App extends Component {
     localStorage.removeItem('sessionUser');
     localStorage.removeItem('userId');
 
-    //console.log('Username:'+document.getElementById('userEmail').value+', Password:'+document.getElementById('userPass').value);
-    //fetch('http://localhost/campaign-php/register.php', {
-    fetch('http://ideaweaver.in/campaign-php-ws/register.php', {
+    fetch(`${WS_URL}register.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -163,8 +161,7 @@ class App extends Component {
       loading: true
     })
 
-    //fetch('http://localhost/campaign-php/forgot-password.php', {
-    fetch('http://ideaweaver.in/campaign-php-ws/forgot-password.php', {
+    fetch(`${WS_URL}forgot-password.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -174,7 +171,6 @@ class App extends Component {
         return response.json();
       }).then(json => {
           if(json.status == 'failure'){
-            console.log(json.msg);
             this.setState({
                 loading: false,
                 invalidForPassMsg: json.msg,
@@ -215,7 +211,6 @@ class App extends Component {
 
 
   render() {
-
     return (
       <div className="app">
         <div style={{'width':'calc(100% - 8px)','height':'80%','position':'absolute','top':'50px','opacity':'0.05','zIndex':'-1','overflow':'hidden'}}><img src="./email-marketing.png"/></div>
@@ -235,6 +230,7 @@ class App extends Component {
               <Route path="/resend-campaign/:campId/:campType" render={(routeProps) => (<ResendCampaign sessionUser={this.state.sessionUser} {...routeProps} />)}/>
               <Route path="/edit-profile/:userId" render={(routeProps) => (<EditProfile sessionUser={this.state.sessionUser} {...routeProps} />)}/>
               <Route path="/my-campaigns" render={(routeProps) => (<MyCampaigns sessionUser={this.state.sessionUser}  {...routeProps} />)}/>
+              <Route path="/import-contacts" render={(routeProps) => (<ImportContacts sessionUser={this.state.sessionUser}  {...routeProps} />)}/>
             </div>
           </div>
         </Router>

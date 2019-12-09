@@ -40,8 +40,7 @@ class Profile extends Component {
 	_handleSubmit(e) {
 	    e.preventDefault();
 	    if(this.state.imagePreviewUrl){	
-	      		//fetch('http://localhost/campaign-php/profile-image.php', {
-      			fetch('http://ideaweaver.in/campaign-php-ws/profile-image.php', {
+      			fetch(`${WS_URL}profile-image.php`, {
 			      method: 'POST',
 			      headers: {
 			        'Content-Type': 'application/x-www-form-urlencoded'
@@ -104,8 +103,7 @@ class Profile extends Component {
 	}
 
 	componentDidMount(){
-		fetch('http://ideaweaver.in/campaign-php-ws/profile.php', {
-		//fetch('http://localhost/campaign-php/profile.php', {
+		fetch(`${WS_URL}profile.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -114,7 +112,6 @@ class Profile extends Component {
 	      }).then(response => {
 	        return response.json();
 	      }).then(json => {
-	      		console.log('profile ='+json);
 	      		this.setState({
 	      			fullname: json[0].name,
 	      			email: json[0].email,
@@ -147,8 +144,7 @@ class Profile extends Component {
 		const self = this;
 
 		let {imagePreviewUrl} = this.state;
-		//let prevProfileImg  = 'http://localhost/campaign-php/'+this.state.prevProfileImg;
-		 let prevProfileImg  = 'http://ideaweaver.in/campaign-php-ws/'+this.state.prevProfileImg;
+		 let prevProfileImg  = `${WS_URL}${this.state.prevProfileImg}`;
 	    let $imagePreview = null;
 	    if (imagePreviewUrl) {
 	      $imagePreview = (<img src={imagePreviewUrl} />);

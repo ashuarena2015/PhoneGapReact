@@ -45,7 +45,8 @@ class CreateCampaign extends Component {
 			haveContactList: false,
 			testSMSModal: false,
 			testImageCampModal: false,
-			imageCampTestSendSuc: false
+			imageCampTestSendSuc: false,
+			selectedCampType: ''
 		}
 
 
@@ -75,10 +76,6 @@ class CreateCampaign extends Component {
 		this.closeTestImageCampModal = this.closeTestImageCampModal.bind(this);
 		this.sendTestImageCamp = this.sendTestImageCamp.bind(this);
 
-		console.log(this.props);
-		console.log('Active Campaign='+this.props.match.params.campId);
-		console.log('Campaign type='+this.props.match.params.campType);
-
 		if(localStorage.getItem('sessionUser') == '' || localStorage.getItem('sessionUser') == null){
 			history.push('/');
 		}
@@ -89,7 +86,9 @@ class CreateCampaign extends Component {
 
 	campaignType(e){
 		const campaignType = e.target.value;
-		console.log(campaignType);
+		this.setState({
+			selectedCampType: campaignType
+		})
 		if(campaignType == 'send-image'){
 			this.setState({
 				campaignTypeSelected: false,
@@ -116,9 +115,7 @@ class CreateCampaign extends Component {
 
 	getListData(e){
 		const listId = e.target.getAttribute('data-list-id');
-		console.log(listId);
-		fetch('http://ideaweaver.in/campaign-php-ws/get-list-data.php', {
-		//fetch('http://localhost/campaign-php/get-list-data.php', {
+		fetch(`${WS_URL}get-list-data.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -223,7 +220,9 @@ class CreateCampaign extends Component {
 	  		campaignTypeSelected: true,
 	  		chooseImageStep: false,
 	  		chooseContactListStep: false,
-	  		smsInputStep: false
+				smsInputStep: false,
+				designCampStep: false	,
+				nextStep: true
 	  	})
 	  }
 
@@ -242,8 +241,7 @@ class CreateCampaign extends Component {
 
   	componentDidMount(){
 
-  		fetch('http://ideaweaver.in/campaign-php-ws/get-contact-list.php', {
-		//fetch('http://localhost/campaign-php/get-contact-list.php', {
+  		fetch(`${WS_URL}get-contact-list.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -287,13 +285,11 @@ class CreateCampaign extends Component {
 	}
 
 	sendCampaignNow(){
-		
 		this.setState({
 			loading: true
 		})
 
-		fetch('http://ideaweaver.in/campaign-php-ws/send-campaign-now.php', {
-		//fetch('http://localhost/campaign-php/send-campaign-now.php', {
+		fetch(`${WS_URL}send-campaign-now.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -306,11 +302,11 @@ class CreateCampaign extends Component {
 	      			this.setState({
 	      				campaignTypeSelected: true,
 	      				nextStep: false,
-						chooseImageStep: false,
-						chooseContactListStep: false,
-						campSendSMSSuccess: false,
-						campSendSuccess: true,
-						loading: false
+								chooseImageStep: false,
+								chooseContactListStep: false,
+								campSendSMSSuccess: false,
+								campSendSuccess: true,
+								loading: false
 	      			})
 	      		}
 	      })
@@ -321,8 +317,7 @@ class CreateCampaign extends Component {
 			loading: true
 		})
 		var emailTesting = this.refs.email_test.value;
-		fetch('http://ideaweaver.in/campaign-php-ws/send-test-image-campaign.php', {
-		//fetch('http://localhost/campaign-php/send-test-image-campaign.php', {
+		fetch(`${WS_URL}send-test-image-campaign.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -360,8 +355,7 @@ class CreateCampaign extends Component {
 		})
 		var smsMessage = this.refs.smsMessage.value;
 
-		fetch('http://ideaweaver.in/campaign-php-ws/send-sms-now.php', {
-		//fetch('http://localhost/campaign-php/send-sms-now.php', {
+		fetch(`${WS_URL}send-sms-now.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -370,8 +364,6 @@ class CreateCampaign extends Component {
 	      }).then(response => {
                 return response.json();
         	}).then(json => {
-        		console.log(json);
-	      		console.log(json['balance']);
 	      		if(json.status == "success"){
 	      			this.setState({
 	      				campaignTypeSelected: true,
@@ -394,8 +386,7 @@ class CreateCampaign extends Component {
 		})
 		var smsMessage = this.refs.smsMessage.value;
 		var mobile = this.refs.mobile_no_test.value;
-		fetch('http://ideaweaver.in/campaign-php-ws/send-test-sms-now.php', {
-		//fetch('http://localhost/campaign-php/send-test-sms-now.php', {
+		fetch(`${WS_URL}send-test-sms-now.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -404,8 +395,6 @@ class CreateCampaign extends Component {
 	      }).then(response => {
                 return response.json();
         	}).then(json => {
-        		console.log(json);
-	      		console.log(json['balance']);
 	      		if(json.status == "success"){
 	      			this.setState({
 	      				campaignTypeSelected: true,
@@ -436,8 +425,7 @@ class CreateCampaign extends Component {
 
 	addNewListModalBox(e){
 
-		fetch('http://ideaweaver.in/campaign-php-ws/get-lists.php', {
-		//fetch('http://localhost/campaign-php/get-lists.php', {
+		fetch(`${WS_URL}get-lists.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -492,14 +480,9 @@ class CreateCampaign extends Component {
 	}
 
 	handleForce(emailCSVData){
-		//console.log(emailCSVData.length);
-		//console.log(JSON.stringify(emailCSVData));
-
 		this.setState({
 			emailCSV: emailCSVData
 		})
-
-		console.log(JSON.stringify(this.state.emailCSV));
 	}
 
 	importEmailContacts(){
@@ -511,8 +494,7 @@ class CreateCampaign extends Component {
 		var listId = this.state.listId;
 		var contactCSV = this.state.contactCSV;
 
-		fetch('http://ideaweaver.in/campaign-php-ws/add-new-contacts.php', {
-		//fetch('http://localhost/campaign-php/add-new-contacts.php', {
+		fetch(`${WS_URL}add-new-contacts.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -547,10 +529,8 @@ class CreateCampaign extends Component {
 
 	addList(e){
 		var newListName = this.refs.new_list_name.value;
-		console.log(newListName);
 
-		fetch('http://ideaweaver.in/campaign-php-ws/add-new-list.php', {
-		//fetch('http://localhost/campaign-php/add-new-list.php', {
+		fetch(`${WS_URL}add-new-list.php`, {
 	      method: 'POST',
 	      headers: {
 	        'Content-Type': 'application/x-www-form-urlencoded'
@@ -571,9 +551,6 @@ class CreateCampaign extends Component {
 
 	      });
 	}
-
-
-	//localStorage.setItem('designCampName',this.state.campaignName)
 
 	render(props) {
 
@@ -618,8 +595,7 @@ class CreateCampaign extends Component {
 
 	  	let csvPreview = this.state;
 	    let {imagePreviewUrl} = this.state;
-		let prevProfileImg  = 'http://ideaweaver.in/campaign-php-ws/'+this.state.prevProfileImg;
-		//let prevProfileImg  = 'http://localhost/campaign-php/'+this.state.prevProfileImg;
+			let prevProfileImg  = `${WS_URL}${this.state.prevProfileImg}`;
 	    let $imagePreview = null;
 	    if (imagePreviewUrl) {
 	      $imagePreview = (<img src={imagePreviewUrl} />);
@@ -628,18 +604,10 @@ class CreateCampaign extends Component {
 	    }
 
 
-	    {/*const emailsAll = [];
-		const emailsArray = this.state.emailCSV;
-
-		emailsArray.forEach(function(data, i){
-	      	emailsAll.push(data);
-	  	})*/}
-
 	    return (
 	    	<div className="container m-t-50">
 		    	<div className={this.state.campaignTypeSelected ? "panel panel-default" : "hide"}>
 		    		<div className="panel-body">
-		    			{/*{this.state.getPagePath}*/}
 		    			<h3>Create Campaign - Step 1</h3>
 			    		<div className="form-box">
 			    			<div className="form-group">
@@ -781,7 +749,8 @@ class CreateCampaign extends Component {
 		    				<span className={!this.state.campaignNameError ? "hide" : "help-text help-text-error"}>Please enter campaign name</span>
 		    			</div>
 		    			<div className="form-group">
-							<a href="javascript:void(0)" className="btn-success btn btn-block m-t-rg" onClick={() => { window.location = 'file:///android_asset/www/design-campaign.html'; localStorage.setItem('designCampName',this.state.campaignName); this.setState({loading: true}) }}><span className={this.state.loading ? "fa fa-spin fa-spinner" : "hide"}></span> Next</a>
+							{/* <a href="javascript:void(0)" className="btn-success btn btn-block m-t-rg" onClick={() => { window.location = 'file:///android_asset/www/design-campaign.html'; localStorage.setItem('designCampName',this.state.campaignName); this.setState({loading: true}) }}><span className={this.state.loading ? "fa fa-spin fa-spinner" : "hide"}></span> Next</a> */}
+							<a href="javascript:void(0)" className="btn-success btn btn-block m-t-rg" onClick={() => { window.location = '/design-campaign.html'; localStorage.setItem('designCampName',this.state.campaignName); this.setState({loading: true}) }}><span className={this.state.loading ? "fa fa-spin fa-spinner" : "hide"}></span> Next</a>
 						</div>
 					</div>
 				</div>						
